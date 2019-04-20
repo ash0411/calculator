@@ -42,10 +42,10 @@ ENDM
  INPUTB MACRO  ;FOR YOU TO TAKE INPUT IT WILL TAKE  INPUT OF NUMBER OF 2 DIGIT PLEASE MENTION IN FUNCTION
    mov ah,1    ;input function
    int 21h
-   mov bl,al   ;save the value from input
+   mov bh,al   ;save the value from input
    MOV AH,1
    INT 21H
-   MOV BH,AL  ;THE INFO IS STORED IN BX REGISTER
+   MOV BL,AL  ;THE INFO IS STORED IN BX REGISTER
  ENDM
  INPUTI MACRO 
    MOV AH,1
@@ -86,15 +86,16 @@ CODE SEGMENT
     ;PRNT AX
     ;for input of variable
     INPUTB
-    and bx,0101
-    shl bh,4
+    and bx,0x0f0fh
+    ROL bh,04
     add bl,bh
+    mov bh,00
     MOV CX,BX
-    PRNT CX
     INPUTB
-    and bx,0101
-    shl bh,4
+    and bx,0x0f0fh
+    ROL bh,04
     add bl,bh
+    mov bh,00
     ADDITION CX,BX
      
     MOV AH,4CH
