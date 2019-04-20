@@ -205,7 +205,15 @@ ENDM
      SBB CX,CX 
     PRNT DX
 ENDM
-    
+
+CHECK MACRO
+    PRNTM MSG5
+    INPUTI 
+    CMP BH,31
+    JZ L1
+    INT 21H
+ENDM 
+        
     CONVERTB MACRO NO
     ENDM 
 
@@ -243,8 +251,27 @@ CODE SEGMENT
 
     PRNTM MSG4
 
-    INPUTI 
-
+    L1:
+    INPUTI
+        
+        CMP BH,31H
+        JZ L2 
+         CMP BH,32H
+        JZ L3
+         CMP BH,33H
+        ;JZ L4
+        ; CMP BH,34H
+       ; JZ L5
+       ; CMP BH,35H
+        ;JZ L6
+        ;CMP BH,36H
+        ;JZ L7
+       ; CMP BH,37H
+       ; JZ L8
+       ; CMP BH,38H
+        ;JZ L9
+        ;CMP BH,39H
+        ;JZ L10
         ;mov ax, 0x1234
 
         ;PRNT AX
@@ -274,9 +301,9 @@ CODE SEGMENT
     ;mov bh,00
 
     ;ADDITION
-    SUBTRACTION
-    
-     
+    ;SUBTRACTION
+    L2: ADDITION
+    L3:SUBTRACTION
 
     MOV AH,4CH
 
