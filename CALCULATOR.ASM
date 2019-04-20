@@ -64,6 +64,30 @@ printasc:
   ret   
 
 ENDM
+PRNTL MACRO REG ;for printing only register like al
+    MOV AL,REG
+    CALL printb1
+    INT 0X20
+    printb1:
+  push ax
+  shr al, 4
+  call printasc1
+  pop ax
+  and al, 0xf
+  call printasc1
+  ret
+printasc1:
+  add al, 0x30
+  cmp al, 0x39
+  jle printasc_e1
+  add al, 0x7
+  printasc_e1:
+  mov dl, al
+  mov ah, 0x2
+  int 0x21
+  ret   
+ENDM
+
 
 PRNTM MACRO MSG
 
@@ -149,6 +173,38 @@ ENDM
         PRNT CX
 
     ENDM
+    SUBTRACTION MACRO
+    INPUTB 
+    and bx,0x0f0fh
+
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00
+
+    MOV CX,BX
+
+    INPUTB
+
+    and bx,0x0f0fh
+    
+    ROL bh,04
+
+    add bl,bh
+    mov bh,00
+    MOV AX,CX
+     SUB AL,BL
+     DAS
+     MOV DL,AL
+     MOV AL,AH
+     SBB AL,BH 
+     DAS
+     MOV DH,AL
+     MOV CX ,0000H
+     SBB CX,CX 
+    PRNT DX
+ENDM
     
     CONVERTB MACRO NO
     ENDM 
@@ -217,8 +273,8 @@ CODE SEGMENT
 
     ;mov bh,00
 
-    ADDITION
-    
+    ;ADDITION
+    SUBTRACTION
     
      
 
