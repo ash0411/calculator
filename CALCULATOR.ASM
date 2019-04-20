@@ -61,7 +61,7 @@ ENDM
         MOV AL,AH
         ADD AL,BH
         DAA
-        MOV CH,AH
+        MOV CH,AL
         PRNT CX
 ENDM
 DATA SEGMENT
