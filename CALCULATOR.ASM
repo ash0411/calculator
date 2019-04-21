@@ -159,8 +159,190 @@ printasc1:
   ret   
 ENDP    
     ;//////////////////////////////////
+     
+    FACT PROC NEAR
+        
+     INPUTB
+     
+    and bx,0x0f0fh
+     
+    ROL bh,04
+     
+    add bl,bh
+     
+    mov bh,00
+     
+    MOV CX,BX
+    
+    MOV AL,CL
+    MOV AH,00H
+    MOV CX,AX
+    
+    DEC CX
+    DEC CX
+    
+    L10:
+        CMP BL,1H
+        JE L100
+        DEC BL
+        MUL BL
+        LOOP L10
+        
+    L100:
+        
+     CALL PRNT        
+        
+    ENDP
+
+    SQUARE PROC NEAR
+        
+     INPUTB
+     
+    and bx,0x0f0fh
+     
+    ROL bh,04
+     
+    add bl,bh
+     
+    mov bh,00
+     
+    MOV CX,BX    
+              
+     MOV AX,0000H
+     MOV AL,CL
+     MUL CL
+     
+      mov bx,ax
+
+      LEA DX,n_line ;lea means least effective address
+
+
+
+        MOV AH,9
+
+
+
+        INT 21H 
+
+    mov ax,bx
+     
+     CALL PRNT 
+     
+     
+        
+    ENDP
     
     
+    
+    HEXTODEC PROC NEAR
+        
+        PUSH BP
+        MOV BP,SP
+        MOV AX,[BP+4]
+        
+     CMP AL,0AH
+    
+    JZ L111
+         
+    CMP AL,0BH
+    
+    JZ L222
+    
+    CMP AL,0CH
+    
+    JZ L333     
+    
+    CMP AL,0DH
+    
+    JZ L444      
+    
+    CMP AL,0EH
+    
+    JZ L555 
+    
+    CMP AL,0FH
+    
+    JZ L666
+    
+    
+    L111: MOV AL,10H
+        JMP L77
+    L222: MOV AL,11H
+        JMP L77
+    L333: MOV AL,12H
+        JMP L77
+    L444: MOV AL,13H
+        JMP L77
+    L555: MOV AL,14H
+        JMP L77
+    L666: MOV AL,15H
+        JMP L77  
+        
+    L77:   
+        
+        MOV DL,AL
+        MOV AH,00H
+        MOV BL,10H
+        DIV BL 
+        
+    CMP AH,0AH
+    
+    JZ L11
+         
+    CMP AH,0BH
+    
+    JZ L22
+    
+    CMP AH,0CH
+    
+    JZ L33     
+    
+    CMP AH,0DH
+    
+    JZ L44      
+    
+    CMP AH,0EH
+    
+    JZ L55 
+    
+    CMP AH,0FH
+    
+    JZ L66
+    
+    
+    L11: MOV AH,10H
+        JMP L7
+    L22: MOV AH,11H
+        JMP L7
+    L33: MOV AH,12H
+        JMP L7
+    L44: MOV AH,13H
+        JMP L7
+    L55: MOV AH,14H
+        JMP L7
+    L66: MOV AH,15H
+        JMP L7  
+        
+    L7:
+        
+        MOV DH,AH
+        MOV AH,00H
+        MOV BL,16H
+        MUL BL
+        MOV DL,DH
+        MOV DH,00H
+        ADD DX,AX
+        MOV AX,DX
+        
+        CALL PRNT
+        
+        POP BP
+        RET 4
+        
+    ENDP
+    
+
+    ;/////////////////////////////////
     SUBTRACTION PROC NEAR
             INPUTB 
     and bx,0x0f0fh
