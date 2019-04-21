@@ -192,14 +192,14 @@ ENDP
      MOV CX ,0000H
      SBB CX,CX 
     MOV AX,DX
-     mov ax,bx
+     mov bx,ax
       LEA DX,n_line ;lea means least effective address
 
         MOV AH,9
 
         INT 21H 
     mov ax,bx
-    CALL PRNT
+    CALL PRNTL
     RET
     ENDP
     ;////////////////////////////////////////
