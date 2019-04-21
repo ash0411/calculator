@@ -1,28 +1,6 @@
 
  
-PRNTL MACRO REG ;for printing only register like al
-    MOV AL,REG
-    CALL printb1
-    INT 0X20
-    printb1:
-  push ax
-  shr al, 4
-  call printasc1
-  pop ax
-  and al, 0xf
-  call printasc1
-  ret
-printasc1:
-  add al, 0x30
-  cmp al, 0x39
-  jle printasc_e1
-  add al, 0x7
-  printasc_e1:
-  mov dl, al
-  mov ah, 0x2
-  int 0x21
-  ret   
-ENDM
+ 
 
 
 PRNTM MACRO MSG
@@ -79,9 +57,8 @@ ENDM
     ENDM 
 
 DATA SEGMENT
-
-    n_line DB 0AH,0DH,"$" 
-
+    n_line DB 0AH,0DH,"$"   ;for new line
+    
     MSG1 DB "HEY ITS THE CALCULATOR WHATS UP$"
 
     MSG2 DB "SOO LETS START WITH THE BASICS OF WHAT YOU CAN DO WITH IT$"
@@ -99,8 +76,7 @@ DATA ENDS
 CODE SEGMENT
     PROC PRNT NEAR
 call printw
-
-int 0x20
+int 0x20 
 
 printw:
 
@@ -159,6 +135,32 @@ printasc:
   ret   
 
 ENDP
+;///////////////////////////////
+PRNTL PROC  ;for printing only register like al
+    CALL printb1
+    INT 0X20
+    printb1:
+  push ax
+  shr al, 4
+  call printasc1
+  pop ax
+  and al, 0xf
+  call printasc1
+  ret
+printasc1:
+  add al, 0x30
+  cmp al, 0x39
+  jle printasc_e1
+  add al, 0x7
+  printasc_e1:
+  mov dl, al
+  mov ah, 0x2
+  int 0x21
+  ret   
+ENDP    
+    ;//////////////////////////////////
+    
+    
     SUBTRACTION PROC NEAR
             INPUTB 
     and bx,0x0f0fh
@@ -190,9 +192,17 @@ ENDP
      MOV CX ,0000H
      SBB CX,CX 
     MOV AX,DX
+     mov ax,bx
+      LEA DX,n_line ;lea means least effective address
+
+        MOV AH,9
+
+        INT 21H 
+    mov ax,bx
     CALL PRNT
     RET
     ENDP
+    ;////////////////////////////////////////
     ADDITION PROC NEAR
                 INPUTB
 
@@ -232,10 +242,146 @@ ENDP
 
         MOV CH,AL
         MOV AX,CX
+         mov bx,ax
+      LEA DX,n_line ;lea means least effective address
+
+        MOV AH,9
+
+        INT 21H 
+    mov ax,bx
         CALL PRNT
         RET
      ENDP
+ ;///////////////////////////////////////////////
+    PROC HEXCON NEAR      ;input in bx
+        mov AL,BL
+        AND BL,0X0F
+        SHR AL,04
+        MOV BH,0x0A
+        MUL BH
+        ADD BL,AL
+         ;RETURNS BX
+        RET
+      ENDP
+  ;///////////////////////////////////////////
+  PROC DECCON NEAR       ;INPUT IN BX
+        MOV AL,BL
+        AND BL,0X0F
+        SHR AL,04
+        MOV BH,0X0F
+        MUL BH
+        ADD BL,AL        ;RETURN BX
+        RET 
+  ENDP
+  ;////////////////////////////////////////
+    PROC MULTIPLY NEAR
+     INPUTB
+
+    and bx,0x0f0fh
+
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00
+
+    CALL HEXCON
+    MOV CX,BX
+
+    INPUTB
+
+    and bx,0x0f0fh
     
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00
+    CALL HEXCON 
+    
+    MOV AL,CL
+    MUL BL
+    mov bx,ax
+      LEA DX,n_line ;lea means least effective address
+
+        MOV AH,9
+
+        INT 21H 
+    mov ax,bx 
+    CALL PRNT
+    RET
+    ENDP
+    ;//////////////////////////////////////////
+    DIVISION PROC NEAR
+    INPUTB
+    and bx,0x0f0fh
+
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00
+
+    CALL HEXCON
+    MOV CX,BX
+
+    INPUTB
+
+    and bx,0x0f0fh
+    
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00    
+    
+    CALL HEXCON
+    MOV AX,CX 
+    MOV AH,00
+    DIV BL
+       mov bx,ax
+      LEA DX,n_line ;lea means least effective address
+
+        MOV AH,9
+
+        INT 21H
+    mov ax,bx 
+    CALL PRNTL 
+    RET
+    ENDP
+    ;/////////////////////////////
+    MODULUS PROC NEAR
+    INPUTB
+    and bx,0x0f0fh
+
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00
+
+    CALL HEXCON
+    MOV CX,BX
+
+    INPUTB
+
+    and bx,0x0f0fh
+    
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00    
+    
+    CALL HEXCON
+    MOV AX,CX 
+    MOV AH,00
+    DIV BL
+    MOV AH,AL
+    CALL PRNTL 
+    RET
+        ENDP
+        ;/////////////////////////////////////////////
     START:
 
     MOV AX,DATA
@@ -249,7 +395,6 @@ ENDP
     PRNTM MSG3
 
     PRNTM MSG4
-
     L1:
     INPUTI
         
@@ -258,17 +403,17 @@ ENDP
          CMP BH,32H
         JZ L3
          CMP BH,33H
-        ;JZ L4
-        ; CMP BH,34H
-       ; JZ L5
-       ; CMP BH,35H
-        ;JZ L6
+        JZ L4
+         CMP BH,34H
+        JZ L5
+        CMP BH,35H
+        JZ L6
         ;CMP BH,36H
         ;JZ L7
        ; CMP BH,37H
        ; JZ L8
-       ; CMP BH,38H
-        ;JZ L9
+        CMP BH,38H
+        JZ L9
         ;CMP BH,39H
         ;JZ L10
         ;mov ax, 0x1234
@@ -303,7 +448,23 @@ ENDP
     ;SUBTRACTION
     L2: CALL ADDITION
     L3:CALL SUBTRACTION
+    L4: CALL MULTIPLY
+    L5: CALL DIVISION
+    
+    L6:CALL MODULUS
+    L9:INPUTB
 
+    and bx,0x0f0fh
+    
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00
+    CALL HEXCON
+    MOV AL,BL
+    CALL PRNTL
+    
     MOV AH,4CH
 
     INT 21H
