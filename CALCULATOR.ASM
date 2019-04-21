@@ -1,69 +1,5 @@
 
-PRNT MACRO REG
-
- MOV AX,REG 
-
-call printw
-
-int 0x20
-
-printw:
-
- push ax
-
- shr ax, 8
-
- call printb
-
- pop ax
-
- push ax
-
- and  ax, 0xff
-
- call printb
-
- pop ax
-
- ret
-
-printb:
-
-  push ax
-
-  shr al, 4
-
-  call printasc
-
-  pop ax
-
-  and al, 0xf
-
-  call printasc
-
-  ret
-
-printasc:
-
-  add al, 0x30
-
-  cmp al, 0x39
-
-  jle printasc_e
-
-  add al, 0x7
-
-  printasc_e:
-
-  mov dl, al
-
-  mov ah, 0x2
-
-  int 0x21
-
-  ret   
-
-ENDM
+ 
 PRNTL MACRO REG ;for printing only register like al
     MOV AL,REG
     CALL printb1
@@ -131,8 +67,134 @@ ENDM
 
 ENDM
 
-    ADDITION MACRO
-        INPUTB
+CHECK MACRO
+    PRNTM MSG5
+    INPUTI 
+    CMP BH,31
+    JZ L1
+    INT 21H
+ENDM 
+        
+    CONVERTB MACRO NO
+    ENDM 
+
+DATA SEGMENT
+
+    n_line DB 0AH,0DH,"$" 
+
+    MSG1 DB "HEY ITS THE CALCULATOR WHATS UP$"
+
+    MSG2 DB "SOO LETS START WITH THE BASICS OF WHAT YOU CAN DO WITH IT$"
+
+    MSG3 DB "IT CAN DO A LOT OF THINGS$"
+
+    MSG4 DB "PRESS 1 FOR ADDITION 2 FOR SUBSTRACTION 3 FOR MULTIPLICATION 4 FOR DIVISION 5 FOR MODULUS 6 FOR SQUARE 7 FOR FACTORIAL 8 FOR CONVERSION TO HEXA DECIMAL AND 9 FOR CONVERSION TO BINARY$"    
+
+    MSG5 DB "DO YOU WANT TO CONTINUE PRESS 1 FOR YES ELSE PRESS ANY KEY$"
+
+DATA ENDS 
+
+  
+
+CODE SEGMENT
+    PROC PRNT NEAR
+call printw
+
+int 0x20
+
+printw:
+
+ push ax
+
+ shr ax, 8
+
+ call printb
+
+ pop ax
+
+ push ax
+
+ and  ax, 0xff
+
+ call printb
+
+ pop ax
+
+ ret
+
+printb:
+
+  push ax
+
+  shr al, 4
+
+  call printasc
+
+  pop ax
+
+  and al, 0xf
+
+  call printasc
+
+  ret
+
+printasc:
+
+  add al, 0x30
+
+  cmp al, 0x39
+
+  jle printasc_e
+
+  add al, 0x7
+
+  printasc_e:
+
+  mov dl, al
+
+  mov ah, 0x2
+
+  int 0x21
+
+  ret   
+
+ENDP
+    SUBTRACTION PROC NEAR
+            INPUTB 
+    and bx,0x0f0fh
+
+    ROL bh,04
+
+    add bl,bh
+
+    mov bh,00
+
+    MOV CX,BX
+
+    INPUTB
+
+    and bx,0x0f0fh
+    
+    ROL bh,04
+
+    add bl,bh
+    mov bh,00
+    MOV AX,CX
+     SUB AL,BL
+     DAS
+     MOV DL,AL
+     MOV AL,AH
+     SBB AL,BH 
+     DAS
+     MOV DH,AL
+     MOV CX ,0000H
+     SBB CX,CX 
+    MOV AX,DX
+    CALL PRNT
+    RET
+    ENDP
+    ADDITION PROC NEAR
+                INPUTB
 
     and bx,0x0f0fh
 
@@ -169,74 +231,11 @@ ENDM
         DAA
 
         MOV CH,AL
-
-        PRNT CX
-
-    ENDM
-    SUBTRACTION MACRO
-    INPUTB 
-    and bx,0x0f0fh
-
-    ROL bh,04
-
-    add bl,bh
-
-    mov bh,00
-
-    MOV CX,BX
-
-    INPUTB
-
-    and bx,0x0f0fh
+        MOV AX,CX
+        CALL PRNT
+        RET
+     ENDP
     
-    ROL bh,04
-
-    add bl,bh
-    mov bh,00
-    MOV AX,CX
-     SUB AL,BL
-     DAS
-     MOV DL,AL
-     MOV AL,AH
-     SBB AL,BH 
-     DAS
-     MOV DH,AL
-     MOV CX ,0000H
-     SBB CX,CX 
-    PRNT DX
-ENDM
-
-CHECK MACRO
-    PRNTM MSG5
-    INPUTI 
-    CMP BH,31
-    JZ L1
-    INT 21H
-ENDM 
-        
-    CONVERTB MACRO NO
-    ENDM 
-
-DATA SEGMENT
-
-    n_line DB 0AH,0DH,"$" 
-
-    MSG1 DB "HEY ITS THE CALCULATOR WHATS UP$"
-
-    MSG2 DB "SOO LETS START WITH THE BASICS OF WHAT YOU CAN DO WITH IT$"
-
-    MSG3 DB "IT CAN DO A LOT OF THINGS$"
-
-    MSG4 DB "PRESS 1 FOR ADDITION 2 FOR SUBSTRACTION 3 FOR MULTIPLICATION 4 FOR DIVISION 5 FOR MODULUS 6 FOR SQUARE 7 FOR FACTORIAL 8 FOR CONVERSION TO HEXA DECIMAL AND 9 FOR CONVERSION TO BINARY$"    
-
-    MSG5 DB "DO YOU WANT TO CONTINUE PRESS 1 FOR YES ELSE PRESS ANY KEY$"
-
-DATA ENDS 
-
-  
-
-CODE SEGMENT
-
     START:
 
     MOV AX,DATA
@@ -302,8 +301,8 @@ CODE SEGMENT
 
     ;ADDITION
     ;SUBTRACTION
-    L2: ADDITION
-    L3:SUBTRACTION
+    L2: CALL ADDITION
+    L3:CALL SUBTRACTION
 
     MOV AH,4CH
 
